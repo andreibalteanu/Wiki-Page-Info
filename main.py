@@ -14,3 +14,10 @@ def getDataFromUrl(url):
     content = requests.get(url)
     string = content.content.decode()
     return string
+
+def WikiPageInfo():
+    url = getUrlFromKeyboard()
+    pageContent = getDataFromUrl(url)
+    print(pageContent)
+
+WikiPageInfo()
