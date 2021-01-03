@@ -9,3 +9,8 @@ def getUrlFromKeyboard():
             return url
         else:
             print('Wrong url!')
+
+def getDataFromUrl(url):
+    content = requests.get(url)
+    string = content.content.decode()
+    return string
