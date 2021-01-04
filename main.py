@@ -13,24 +13,24 @@ def getUrlFromKeyboard():
             print('Wrong url!')
 
 def getDataFromUrl(url):
-    content = requests.get(url)
+    content = requests.get(url)     
     string = content.content.decode()
     return string
 
 def parseContentData(pageContent,url):
     dict = {
-        "title": "",
+        "Title": "",
         "Most_frequent_word": "",
         "Images": []
     }
 
     title = getTitle(pageContent)
-    dict.update({"title":title})
+    dict.update({"Title":title})
 
     images_src = getImgSrc(pageContent)
     dict.update({"Images":images_src})
 
-    mostFrequentWord = getMostFrequentWord(url)
+    mostFrequentWord = getMostFrequentWord(pageContent)
     dict.update({"Most_frequent_word":mostFrequentWord[0][0]})   
 
     return dict
@@ -50,9 +50,8 @@ def getImgSrc(pageContent):
     images_src = re.findall('src="(.+?)"',images_str)       #separate image soruces from concatenated string
     return images_src
 
-def getMostFrequentWord(url):
-    html_page = requests.get(url).content
-    soup = BeautifulSoup(html_page, 'html.parser')
+def getMostFrequentWord(pageContent):            
+    soup = BeautifulSoup(pageContent, 'html.parser')
     text = soup.find_all(text=True)
 
     output = ''
@@ -76,7 +75,7 @@ def getMostFrequentWord(url):
     return most_frequent
 
 def writeToJSON(dict):
-    j = json.dumps(dict)
+    j = json.dumps(dict, indent=4,sort_keys=True)
     with open('Wiki.json', 'w') as f:
         f.write(j)
         f.close()
