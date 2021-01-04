@@ -1,6 +1,6 @@
 import requests
 import json
-
+import re
 
 def getUrlFromKeyboard():
     while True:
@@ -22,12 +22,23 @@ def parseContentData(pageContent):
         "Images": []
     }
 
-    start = '<title>'
+    start = '<title>'                                       #get title out of page content and insert into dictionary
     end = '</title>'
     title = (pageContent.split(start))[1].split(end)[0]
     title = title.replace(' - Wikipedia','')
     dict.update({"title":title})
-    print (dict)
+
+    images = re.findall('<img.+?>',pageContent)             #get images out of page content
+
+    images_str = ""                                         #turn list of images into a concatenated string
+    for i in images:
+        images_str += str(i) + " "
+
+    images_src = re.findall('src="(.+?)"',images_str)       #separate image soruces from concatenated string
+
+    dict.update({"Images":images_src})                      #added src list to dictionary
+
+    print(dict)
 
 def WikiPageInfo():
     url = getUrlFromKeyboard()
