@@ -1,6 +1,8 @@
 import requests
 import json
 import re
+from collections import Counter 
+from bs4 import BeautifulSoup
 
 def getUrlFromKeyboard():
     while True:
@@ -15,34 +17,68 @@ def getDataFromUrl(url):
     string = content.content.decode()
     return string
 
-def parseContentData(pageContent):
+
+def parseContentData(pageContent,url):
     dict = {
         "title": "",
         "Most_frequent_word": "",
         "Images": []
     }
 
+    title = getTitle(pageContent)
+    dict.update({"title":title})
+
+    images_src = getImgSrc(pageContent)
+    dict.update({"Images":images_src})
+
+    mostFrequentWord = getMostFrequentWord(url)
+    dict.update({"Most_frequent_word":mostFrequentWord[0][0]})   
+    
+    print(dict)
+
+def getTitle(pageContent):
     start = '<title>'                                       #get title out of page content and insert into dictionary
     end = '</title>'
     title = (pageContent.split(start))[1].split(end)[0]
     title = title.replace(' - Wikipedia','')
-    dict.update({"title":title})
+    return title
 
+def getImgSrc(pageContent):
     images = re.findall('<img.+?>',pageContent)             #get images out of page content
-
     images_str = ""                                         #turn list of images into a concatenated string
     for i in images:
         images_str += str(i) + " "
-
     images_src = re.findall('src="(.+?)"',images_str)       #separate image soruces from concatenated string
+    return images_src
 
-    dict.update({"Images":images_src})                      #added src list to dictionary
+def getMostFrequentWord(url):
+    html_page = requests.get(url).content
+    soup = BeautifulSoup(html_page, 'html.parser')
+    text = soup.find_all(text=True)
 
-    print(dict)
+    output = ''
+    blacklist = [
+    '[document]',
+    'noscript',
+    'header',
+    'html',
+    'meta',
+    'head', 
+    'input',
+    'script',
+    ]
+    for t in text:
+        if t.parent.name not in blacklist:
+            output += '{} '.format(t)
+
+    split = output.split()
+    count = Counter(split)
+    most_frequent = count.most_common(1)
+    return most_frequent
 
 def WikiPageInfo():
     url = getUrlFromKeyboard()
     pageContent = getDataFromUrl(url)
-    parseContentData(pageContent)
+    parseContentData(pageContent,url)
 
 WikiPageInfo()
