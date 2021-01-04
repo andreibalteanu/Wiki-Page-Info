@@ -17,7 +17,6 @@ def getDataFromUrl(url):
     string = content.content.decode()
     return string
 
-
 def parseContentData(pageContent,url):
     dict = {
         "title": "",
@@ -33,8 +32,8 @@ def parseContentData(pageContent,url):
 
     mostFrequentWord = getMostFrequentWord(url)
     dict.update({"Most_frequent_word":mostFrequentWord[0][0]})   
-    
-    print(dict)
+
+    return dict
 
 def getTitle(pageContent):
     start = '<title>'                                       #get title out of page content and insert into dictionary
@@ -76,9 +75,17 @@ def getMostFrequentWord(url):
     most_frequent = count.most_common(1)
     return most_frequent
 
+def writeToJSON(dict):
+    j = json.dumps(dict)
+    with open('Wiki.json', 'w') as f:
+        f.write(j)
+        f.close()
+
 def WikiPageInfo():
     url = getUrlFromKeyboard()
     pageContent = getDataFromUrl(url)
-    parseContentData(pageContent,url)
+    wiki_dictionary = parseContentData(pageContent,url)
+    writeToJSON(wiki_dictionary)
+    
 
 WikiPageInfo()
